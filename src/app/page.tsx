@@ -28,6 +28,7 @@ export default function Home() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const savedKey = localStorage.getItem('anthropic-api-key');
     if (savedKey) {
       setApiKey(savedKey);
