@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Send, HelpCircle, Key, X, Loader2, Trash2 } from 'lucide-react';
-import { ADVISORS, Advisor } from '@/lib/advisors';
+import { Send, HelpCircle, Key, X, Loader2, Trash2, Settings2 } from 'lucide-react';
+import { ALL_ADVISORS, DEFAULT_ADVISOR_IDS, generateBoardMeetingAdvisor, Advisor } from '@/lib/advisors';
 import { HelpModal } from '@/components/HelpModal';
+import { CustomizeModal } from '@/components/CustomizeModal';
 import Image from 'next/image';
 
 interface Message {
@@ -19,6 +20,8 @@ export default function Home() {
   const [apiKey, setApiKey] = useState('');
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [showCustomize, setShowCustomize] = useState(false);
+  const [activeAdvisorIds, setActiveAdvisorIds] = useState<string[]>(DEFAULT_ADVISOR_IDS);
   const [apiKeyInput, setApiKeyInput] = useState('');
   const [error, setError] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -30,6 +33,15 @@ export default function Home() {
       setApiKey(savedKey);
     } else {
       setShowHelp(true);
+    }
+    const savedBoard = localStorage.getItem('business-board-advisors');
+    if (savedBoard) {
+      try {
+        const parsed = JSON.parse(savedBoard);
+        if (Array.isArray(parsed) && parsed.length >= 2) {
+          setActiveAdvisorIds(parsed);
+        }
+      } catch { /* use defaults */ }
     }
   }, []);
 
@@ -137,8 +149,8 @@ export default function Home() {
     }
   };
 
-  const individualAdvisors = ADVISORS.filter(a => a.id !== 'board_meeting');
-  const boardMeeting = ADVISORS.find(a => a.id === 'board_meeting')!;
+  const activeAdvisors = ALL_ADVISORS.filter(a => activeAdvisorIds.includes(a.id));
+  const boardMeeting = generateBoardMeetingAdvisor(activeAdvisors);
 
   const colorMap: Record<string, string> = {
     orange: 'border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20',
@@ -148,6 +160,12 @@ export default function Home() {
     amber: 'border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20',
     cyan: 'border-cyan-500/30 bg-cyan-500/10 hover:bg-cyan-500/20',
     gold: 'border-yellow-500/30 bg-yellow-500/10 hover:bg-yellow-500/20',
+    slate: 'border-slate-400/30 bg-slate-500/10 hover:bg-slate-500/20',
+    sky: 'border-sky-500/30 bg-sky-500/10 hover:bg-sky-500/20',
+    teal: 'border-teal-500/30 bg-teal-500/10 hover:bg-teal-500/20',
+    pink: 'border-pink-500/30 bg-pink-500/10 hover:bg-pink-500/20',
+    violet: 'border-violet-500/30 bg-violet-500/10 hover:bg-violet-500/20',
+    red: 'border-red-500/30 bg-red-500/10 hover:bg-red-500/20',
   };
 
   const selectedColorMap: Record<string, string> = {
@@ -158,6 +176,12 @@ export default function Home() {
     amber: 'border-amber-400 bg-amber-500/30 ring-2 ring-amber-500/50',
     cyan: 'border-cyan-400 bg-cyan-500/30 ring-2 ring-cyan-500/50',
     gold: 'border-yellow-400 bg-yellow-500/30 ring-2 ring-yellow-500/50',
+    slate: 'border-slate-400 bg-slate-500/30 ring-2 ring-slate-500/50',
+    sky: 'border-sky-400 bg-sky-500/30 ring-2 ring-sky-500/50',
+    teal: 'border-teal-400 bg-teal-500/30 ring-2 ring-teal-500/50',
+    pink: 'border-pink-400 bg-pink-500/30 ring-2 ring-pink-500/50',
+    violet: 'border-violet-400 bg-violet-500/30 ring-2 ring-violet-500/50',
+    red: 'border-red-400 bg-red-500/30 ring-2 ring-red-500/50',
   };
 
   return (
@@ -203,9 +227,18 @@ export default function Home() {
       <main className="max-w-6xl mx-auto px-4 py-6">
         {/* Advisor Selection */}
         <div className="mb-6">
-          <h2 className="text-sm font-medium text-white/50 mb-3">Choose Your Advisor</h2>
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-            {individualAdvisors.map((advisor) => (
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-medium text-white/50">Choose Your Advisor</h2>
+            <button
+              onClick={() => setShowCustomize(true)}
+              className="inline-flex items-center gap-1.5 text-xs text-white/40 hover:text-purple-400 transition-colors"
+            >
+              <Settings2 className="h-3.5 w-3.5" />
+              Customize Board
+            </button>
+          </div>
+          <div className={`grid grid-cols-3 gap-2 ${activeAdvisors.length <= 6 ? 'sm:grid-cols-6' : activeAdvisors.length <= 9 ? 'sm:grid-cols-5 lg:grid-cols-9' : 'sm:grid-cols-4 lg:grid-cols-6'}`}>
+            {activeAdvisors.map((advisor) => (
               <button
                 key={advisor.id}
                 onClick={() => {
@@ -241,7 +274,7 @@ export default function Home() {
           >
             <span className="text-xl">📋</span>
             <span className="text-sm font-semibold text-yellow-300">Call a Board Meeting</span>
-            <span className="text-xs text-white/40 hidden sm:inline">&mdash; All 6 advisors weigh in together</span>
+            <span className="text-xs text-white/40 hidden sm:inline">&mdash; All {activeAdvisors.length} advisors weigh in together</span>
           </button>
           {selectedAdvisor && (
             <div className="mt-3 flex items-center justify-between">
@@ -275,7 +308,7 @@ export default function Home() {
                       <>
                         <span className="text-5xl mb-4 block">🏛️</span>
                         <h3 className="text-lg font-medium text-white/70 mb-2">Select an Advisor Above</h3>
-                        <p className="text-sm text-white/40 max-w-md">Choose from 6 legendary business minds, each with their own unique philosophy.</p>
+                        <p className="text-sm text-white/40 max-w-md">Choose from {activeAdvisors.length} legendary business minds, each with their own unique philosophy.</p>
                       </>
                     )}
                   </div>
@@ -341,6 +374,18 @@ export default function Home() {
       </main>
 
       <HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} />
+
+      {/* Customize Modal */}
+      <CustomizeModal
+        isOpen={showCustomize}
+        onClose={() => setShowCustomize(false)}
+        onSave={(ids) => {
+          setActiveAdvisorIds(ids);
+          setSelectedAdvisor(null);
+          setMessages([]);
+        }}
+        activeAdvisorIds={activeAdvisorIds}
+      />
 
       {showApiKeyModal && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
