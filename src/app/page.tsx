@@ -137,6 +137,9 @@ export default function Home() {
     }
   };
 
+  const individualAdvisors = ADVISORS.filter(a => a.id !== 'board_meeting');
+  const boardMeeting = ADVISORS.find(a => a.id === 'board_meeting')!;
+
   const colorMap: Record<string, string> = {
     orange: 'border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20',
     blue: 'border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20',
@@ -144,6 +147,7 @@ export default function Home() {
     indigo: 'border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20',
     amber: 'border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20',
     cyan: 'border-cyan-500/30 bg-cyan-500/10 hover:bg-cyan-500/20',
+    gold: 'border-yellow-500/30 bg-yellow-500/10 hover:bg-yellow-500/20',
   };
 
   const selectedColorMap: Record<string, string> = {
@@ -153,6 +157,7 @@ export default function Home() {
     indigo: 'border-indigo-400 bg-indigo-500/30 ring-2 ring-indigo-500/50',
     amber: 'border-amber-400 bg-amber-500/30 ring-2 ring-amber-500/50',
     cyan: 'border-cyan-400 bg-cyan-500/30 ring-2 ring-cyan-500/50',
+    gold: 'border-yellow-400 bg-yellow-500/30 ring-2 ring-yellow-500/50',
   };
 
   return (
@@ -200,7 +205,7 @@ export default function Home() {
         <div className="mb-6">
           <h2 className="text-sm font-medium text-white/50 mb-3">Choose Your Advisor</h2>
           <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-            {ADVISORS.map((advisor) => (
+            {individualAdvisors.map((advisor) => (
               <button
                 key={advisor.id}
                 onClick={() => {
@@ -221,6 +226,23 @@ export default function Home() {
               </button>
             ))}
           </div>
+          {/* Board Meeting Button */}
+          <button
+            onClick={() => {
+              setSelectedAdvisor(boardMeeting);
+              setMessages([]);
+              setError('');
+            }}
+            className={`mt-3 w-full flex items-center justify-center gap-3 p-3 rounded-xl border transition-all active:scale-95 ${
+              selectedAdvisor?.id === 'board_meeting'
+                ? 'border-yellow-400 bg-yellow-500/20 ring-2 ring-yellow-500/50'
+                : 'border-yellow-500/30 bg-yellow-500/5 hover:bg-yellow-500/15'
+            }`}
+          >
+            <span className="text-xl">📋</span>
+            <span className="text-sm font-semibold text-yellow-300">Call a Board Meeting</span>
+            <span className="text-xs text-white/40 hidden sm:inline">&mdash; All 6 advisors weigh in together</span>
+          </button>
           {selectedAdvisor && (
             <div className="mt-3 flex items-center justify-between">
               <p className="text-sm text-white/60">
@@ -327,24 +349,61 @@ export default function Home() {
             <button onClick={() => setShowApiKeyModal(false)} className="absolute top-4 right-4 text-white/50 hover:text-white">
               <X className="h-5 w-5" />
             </button>
-            <h2 className="text-lg font-semibold text-white mb-2">Claude API Key</h2>
-            <p className="text-sm text-white/50 mb-4">Your key is stored only in your browser. Never sent to our servers.</p>
-            <input
-              type="password"
-              value={apiKeyInput}
-              onChange={(e) => setApiKeyInput(e.target.value)}
-              placeholder="sk-ant-api03-..."
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50 mb-3"
-            />
-            <div className="flex gap-2">
-              <button onClick={saveApiKey} className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-violet-500 text-white font-medium hover:from-purple-500 hover:to-violet-400 transition-all">
-                Save Key
-              </button>
-              <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener noreferrer"
-                className="px-4 py-2.5 rounded-xl border border-white/10 text-sm text-white/70 hover:bg-white/10 transition-colors flex items-center gap-1.5">
-                Get Key
+            <h2 className="text-lg font-semibold text-white mb-4">Set Up Your API Key</h2>
+
+            {/* Step 1 */}
+            <div className="mb-4 p-3 rounded-xl border border-white/10 bg-white/[0.02]">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-xs font-bold">1</span>
+                <span className="text-sm font-medium text-white">Get your Claude API key</span>
+              </div>
+              <p className="text-xs text-white/50 mb-2 ml-8">Create an account and generate an API key on the Anthropic platform.</p>
+              <a
+                href="https://platform.claude.com/dashboard"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-8 inline-flex items-center gap-1.5 text-xs text-purple-400 hover:text-purple-300 transition-colors"
+              >
+                Open Claude Dashboard →
               </a>
             </div>
+
+            {/* Step 2 */}
+            <div className="mb-4 p-3 rounded-xl border border-white/10 bg-white/[0.02]">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-pink-500/20 text-pink-400 text-xs font-bold">2</span>
+                <span className="text-sm font-medium text-white">Watch the video tutorial</span>
+              </div>
+              <p className="text-xs text-white/50 mb-2 ml-8">Not sure how? Watch this quick guide on getting your API key.</p>
+              <a
+                href="https://www.youtube.com/watch?v=y3Jx8sIwYQs"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-8 inline-flex items-center gap-1.5 text-xs text-pink-400 hover:text-pink-300 transition-colors"
+              >
+                Watch Tutorial on YouTube →
+              </a>
+            </div>
+
+            {/* Step 3 */}
+            <div className="mb-4 p-3 rounded-xl border border-white/10 bg-white/[0.02]">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold">3</span>
+                <span className="text-sm font-medium text-white">Paste your key below</span>
+              </div>
+              <p className="text-xs text-white/50 mb-2 ml-8">Your key is stored only in your browser. Never sent to our servers.</p>
+              <input
+                type="password"
+                value={apiKeyInput}
+                onChange={(e) => setApiKeyInput(e.target.value)}
+                placeholder="sk-ant-api03-..."
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+              />
+            </div>
+
+            <button onClick={saveApiKey} className="w-full py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-violet-500 text-white font-medium hover:from-purple-500 hover:to-violet-400 transition-all">
+              Save Key
+            </button>
           </div>
         </div>
       )}
