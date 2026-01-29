@@ -152,6 +152,22 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
         </div>
 
         <div className="overflow-y-auto p-6 space-y-3" style={{ maxHeight: 'calc(85vh - 140px)' }}>
+          {/* Welcome Introduction */}
+          <div className="rounded-xl border border-purple-500/20 bg-gradient-to-br from-purple-500/10 to-violet-500/5 p-5 mb-4">
+            <h3 className="text-lg font-semibold text-white mb-2">🏛️ What is Business Board of Advisors?</h3>
+            <p className="text-sm text-white/70 leading-relaxed mb-3">
+              Imagine having <span className="text-purple-400 font-medium">Alex Hormozi, Mark Cuban, Gary Vee, Walt Disney, Charlie Munger, and Socrates</span> available 24/7 to answer your business questions. That&apos;s exactly what this app gives you.
+            </p>
+            <p className="text-sm text-white/70 leading-relaxed mb-3">
+              Each AI advisor has been trained to think, respond, and advise like their real-world counterpart — using their frameworks, philosophies, and communication styles.
+            </p>
+            <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+              <p className="text-xs text-white/50 mb-1 font-medium">💡 Example Question:</p>
+              <p className="text-sm text-white/80 italic">&ldquo;I&apos;m launching a new service but don&apos;t know how to price it. What should I consider?&rdquo;</p>
+              <p className="text-xs text-white/50 mt-2">Ask Alex Hormozi for pricing strategy, Mark Cuban for market positioning, or call a Board Meeting to get all perspectives at once!</p>
+            </div>
+          </div>
+
           {steps.map((step) => {
             const isExpanded = expandedStep === step.number;
             const Icon = step.icon;
